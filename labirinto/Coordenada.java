@@ -1,9 +1,11 @@
 package labirinto;
-public class Coordenada {
+
+public class Coordenada implements Cloneable{
     private int x;
     private int y;
 
-    public Coordenada(int x, int y){
+    public Coordenada(int x, int y) throws Exception{
+        if (x < 0 || y < 0) throw new Exception("Coordenadas invalidas, numeros negativos não permitidos"); 
         this.x = x;
         this.y = y;
     }
@@ -12,16 +14,8 @@ public class Coordenada {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
     }
 
     @Override
