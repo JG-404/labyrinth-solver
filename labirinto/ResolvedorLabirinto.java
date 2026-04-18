@@ -39,32 +39,74 @@ public class ResolvedorLabirinto{
 
             for (int i = 0; i < this.labirinto.length; i++){
                 for (int j = 0; j < this.labirinto[i].length; j++){
-                    if ((i == 0 || i == this.labirinto.length-1 || j == 0 || j == this.labirinto[i].length-1) && this.labirinto[i][j] == 'E') atual = new Coordenada(i, j);
+                    if ((i == 0 || i == this.labirinto.length-1 || j == 0 || j == this.labirinto[i].length-1) && this.labirinto[i][j] == 'E') this.atual = new Coordenada(i, j);
                 }
             }
 
-            if (atual == null) throw new Exception("Labirinto invalido, entra não encontrada");
+            if (this.atual == null) throw new Exception("Labirinto invalido, entra não encontrada");
 
             this.caminho = new Pilha<>(x * y);
             this.possibilidades = new Pilha<>(x * y);
             this.fila = new Fila<>(3);
+
+            while (true){
+                if (this.labirinto[this.atual.getX()][this.atual.getY()] == 'S') break;
+                this.possibilidades();
+                while (!this.fila.isVazia()){
+                    this.progressivo();
+                    this.possibilidades();
+                }
+                while (!this.possibilidades.getUmItem().isVazia()){
+                    this.recessivo();
+                }
+                this.atual = this.possibilidades.getUmItem().getUmItem();
+                this.possibilidades();
+            }
         }
         catch(Exception error){
             System.out.println("Labirinto invalido" + "\n" + "Mensagem de erro: " + error.getMessage());
         }
     }
 
-    private void progressivo() throws Exception{
-        if (atual.getX() > 0){
-            if (this.labirinto[atual.getX()-1][atual.getY()] == ' ' || this.labirinto[atual.getX()-1][atual.getY()] == 'S') fila.guardeUmItem(new Coordenada(atual.getX() - 1, atual.getY())); 
+    private void possibilidades() throws Exception {
+        int x = this.atual.getX();
+        int y = this.atual.getY();
+
+        if (x > 0){
+            if (this.labirinto[x-1][y] == ' ' || this.labirinto[x-1][y] == 'S') fila.guardeUmItem(new Coordenada(x - 1, y)); 
         }
-        if (atual.getX() < this.labirinto.length-1){
-            if (this.labirinto[atual.getX()+1][atual.getY()] == ' ' || this.labirinto[atual.getX()+1][atual.getY()] == 'S') fila.guardeUmItem(new Coordenada(atual.getX() + 1, atual.getY()));
-        }   
+        if (x < this.labirinto.length-1){
+            if (this.labirinto[x+1][y] == ' ' || this.labirinto[x+1][y] == 'S') fila.guardeUmItem(new Coordenada(x + 1, y));
+        }
+        if (y > 0){
+            if (this.labirinto[x][y-1] == ' ' || this.labirinto[x][y-1] == 'S') fila.guardeUmItem(new Coordenada(x, y - 1)); 
+        }
+        if (y < this.labirinto[x].length-1){
+            if (this.labirinto[x][y+1] == ' ' || this.labirinto[x][y+1] == 'S') fila.guardeUmItem(new Coordenada(x, y + 1)); 
+        }
     }
 
-    private void recessivo(){
+    private void progressivo() throws Exception{
+        this.atual = this.fila.getUmItem();
+        this.fila.removaUmItem();
 
+        if (this.labirinto[this.atual.getX()][this.atual.getY()] == 'S') return;
+
+        this.labirinto[this.atual.getX()][this.atual.getY()] = '*';
+        this.caminho.guardeUmItem(this.atual);
+        this.possibilidades.guardeUmItem(new Fila<>(this.fila));
+        this.fila = new Fila<>(3);
+    }
+
+    private void recessivo() throws Exception{
+        this.labirinto[this.atual.getX()][this.atual.getY()] = ' ';
+        this.caminho.removaUmItem();
+
+        if (caminho.isVazia()) throw new Exception("Sem solução");
+
+        this.atual = this.caminho.getUmItem();
+        this.fila = this.possibilidades.getUmItem();
+        this.possibilidades.removaUmItem();
     }
 
     @Override
