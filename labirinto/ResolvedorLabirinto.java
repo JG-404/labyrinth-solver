@@ -27,8 +27,13 @@ public class ResolvedorLabirinto{
 
         List<String> arquivo = Files.readAllLines(Paths.get("./caminhos/" + path), StandardCharsets.UTF_8);
 
-        this.altura = Integer.parseInt(arquivo.get(0));
-        this.largura = Integer.parseInt(arquivo.get(1));
+        try{
+            this.altura = Integer.parseInt(arquivo.get(0));
+            this.largura = Integer.parseInt(arquivo.get(1));
+        }
+        catch(Exception e){
+            throw new Exception("Dimensoões invalidas");
+        }
 
         if (this.altura < 3 || this.largura < 3)
             throw new Exception("Labirinto invalido");
