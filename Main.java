@@ -1,12 +1,19 @@
 import labirinto.ResolvedorLabirinto;
+import teclado.Teclado;
 
 public class Main {
     public static void main(String[] args) {
-        try{
-            ResolvedorLabirinto labirinto = new ResolvedorLabirinto("teste4.txt");
-            System.out.println(labirinto);
+        while (true) {
+            System.out.println();
+            String caminho = Teclado.inserirTexto("Arquivo: ", "Caminho vazio");
+
+            try{
+                ResolvedorLabirinto labirinto = new ResolvedorLabirinto(caminho);
+            }
+            catch(Exception e)
+            {
+                System.err.println(e.getMessage());
+            }
         }
-        catch(Exception e)
-        {}
     }
 }
