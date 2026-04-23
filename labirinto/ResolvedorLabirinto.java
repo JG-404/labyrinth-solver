@@ -247,9 +247,7 @@ public class ResolvedorLabirinto implements Cloneable{
             ret = new ResolvedorLabirinto(this);
         }
         catch(Exception e)
-        {
-            System.err.println(e.getMessage());
-        }
+        {}
 
         return ret;
     }
