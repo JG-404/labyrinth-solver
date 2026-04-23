@@ -8,7 +8,7 @@ import java.util.List;
 import estruturas.Fila;
 import estruturas.Pilha;
 
-public class ResolvedorLabirinto{
+public class ResolvedorLabirinto implements Cloneable{
     private Pilha<Coordenada> caminho;
     private Pilha<Fila<Coordenada>> possibilidades;
     private Fila<Coordenada> fila;
@@ -19,7 +19,9 @@ public class ResolvedorLabirinto{
 
     private char[][] labirinto;
 
-    private Coordenada atual = null;
+    private Coordenada atual;
+
+    private boolean completo = false;
 
     public ResolvedorLabirinto(String path) throws Exception{
 
@@ -32,7 +34,7 @@ public class ResolvedorLabirinto{
             this.largura = Integer.parseInt(arquivo.get(1));
         }
         catch(Exception e){
-            throw new Exception("Dimensoões invalidas");
+            throw new Exception("Dimensões invalidas");
         }
 
         if (this.altura < 3 || this.largura < 3)
@@ -52,40 +54,12 @@ public class ResolvedorLabirinto{
             }
         }
 
-        for (int i = 0; i < this.labirinto.length; i++) {
-            for (int j = 0; j < this.labirinto[i].length; j++) {
-                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1)
-                        && this.labirinto[i][j] == 'E')
-                    this.atual = new Coordenada(i, j);
-            }
-        }
-
-        if (this.atual == null)
-            throw new Exception("Entrada não encontrada");
+        this.atual = acharEntrada();        
 
         this.caminho = new Pilha<>(this.altura * this.largura);
         this.possibilidades = new Pilha<>(this.altura * this.largura);
 
-        while (this.labirinto[this.atual.getY()][this.atual.getX()] != 'S') {
-
-            andar();
-
-        }
-        System.out.println(this);
-
         this.inverso = new Pilha<>(this.altura * this.largura);
-
-        while (!this.caminho.isVazia()) {
-            this.inverso.guardeUmItem(this.caminho.getUmItem());
-            this.caminho.removaUmItem();
-        }
-
-        System.out.println("Caminho para solucionar o labirinto a seguir:");
-
-        while (!this.inverso.isVazia()) {
-            System.out.print(this.inverso.getUmItem() + " ");
-            this.inverso.removaUmItem();
-        }
     }
 
     private Fila<Coordenada> caminhosPossiveis() throws Exception {
@@ -110,6 +84,51 @@ public class ResolvedorLabirinto{
         return fila;
     }
 
+    public void rodar() throws Exception{
+
+        if (this.completo) throw new Exception("Labirinto já solucionado");
+
+        while (this.labirinto[this.atual.getY()][this.atual.getX()] != 'S') {
+
+            andar();
+
+        }
+        System.out.println(this);
+
+        this.completo = true;
+
+        this.mostrarCaminho();
+    }
+
+    private Coordenada acharEntrada() throws Exception{
+
+        for (int i = 0; i < this.labirinto.length; i++) {
+            for (int j = 0; j < this.labirinto[i].length; j++) {
+                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1)
+                        && this.labirinto[i][j] == 'E')
+                    return new Coordenada(i, j);
+            }
+        }
+
+        throw new Exception("Entrada não encontrada");
+        
+    }
+
+    private void mostrarCaminho() throws Exception{
+
+        while (!this.caminho.isVazia()) {
+            this.inverso.guardeUmItem(this.caminho.getUmItem());
+            this.caminho.removaUmItem();
+        }
+
+        System.out.println("Caminho para solucionar o labirinto a seguir:");
+
+        while (!this.inverso.isVazia()) {
+            System.out.print(this.inverso.getUmItem() + " ");
+            this.inverso.removaUmItem();
+        }
+
+    }
 
     private void andar() throws Exception{
         this.fila = caminhosPossiveis();
@@ -168,6 +187,7 @@ public class ResolvedorLabirinto{
 
         ret = ret * 3 + ((Integer)this.largura).hashCode();
         ret = ret * 3 + ((Integer)this.altura).hashCode();
+        ret = ret * 3 + ((Boolean)this.completo).hashCode();
 
         for (int i = 0; i < this.labirinto.length; i++) {
             for (int j = 0; j < this.labirinto[i].length; j++) {
@@ -188,6 +208,7 @@ public class ResolvedorLabirinto{
         ResolvedorLabirinto outro = (ResolvedorLabirinto)obj;
         if (this.altura != outro.altura) return false;
         if (this.largura != outro.largura) return false;
+        if (this.completo != outro.completo) return false;
         for (int i = 0; i < this.labirinto.length; i++) {
             for (int j = 0; j < this.labirinto[i].length; j++) {
                 if (this.labirinto[i][j] != outro.labirinto[i][j]) return false;
@@ -195,5 +216,41 @@ public class ResolvedorLabirinto{
         }
 
         return true;
+    }
+
+    public ResolvedorLabirinto(ResolvedorLabirinto modelo) throws Exception{
+        if (modelo == null) throw new Exception("Modelo para copia vazio");
+
+        this.caminho = (Pilha<Coordenada>)modelo.caminho.clone();
+        this.possibilidades = (Pilha<Fila<Coordenada>>)modelo.possibilidades.clone();
+        this.fila = (modelo.fila != null) ? (Fila<Coordenada>)modelo.fila.clone() : null; 
+        this.inverso = (Pilha<Coordenada>)modelo.inverso.clone();
+        this.atual = modelo.atual;
+        this.largura = modelo.largura;
+        this.altura = modelo.altura;
+        this.completo = modelo.completo;
+
+        this.labirinto = new char[this.altura][this.largura];
+
+        for (int i = 0; i < this.labirinto.length; i++){
+            for (int j = 0; j < this.labirinto[i].length; j++){
+                this.labirinto[i][j] = modelo.labirinto[i][j];
+            }
+        }
+    }
+
+    @Override
+    public Object clone(){
+        ResolvedorLabirinto ret = null;
+        
+        try{
+            ret = new ResolvedorLabirinto(this);
+        }
+        catch(Exception e)
+        {
+            System.err.println(e.getMessage());
+        }
+
+        return ret;
     }
 }

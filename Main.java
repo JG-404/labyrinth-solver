@@ -9,6 +9,7 @@ public class Main {
 
             try{
                 ResolvedorLabirinto labirinto = new ResolvedorLabirinto(caminho);
+                labirinto.rodar();
             }
             catch(Exception e)
             {
