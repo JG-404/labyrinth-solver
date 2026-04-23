@@ -54,9 +54,10 @@ public class ResolvedorLabirinto implements Cloneable{
             }
         }
 
-        this.atual = this.acharEntrada();
+        this.saidaOuEntradaNoCaminho();
         if (!this.acharSaida()) throw new Exception("Saída não econtrada");
         if (this.labirintoAberto()) throw new Exception("As paredes do labirinto estão abertas");
+        this.atual = this.acharEntrada();
 
         this.caminho = new Pilha<>(this.altura * this.largura);
         this.possibilidades = new Pilha<>(this.altura * this.largura);
@@ -136,6 +137,7 @@ public class ResolvedorLabirinto implements Cloneable{
 
     private boolean labirintoAberto(){
         boolean estaAberto = false;
+
         for (int i = 0; i < this.labirinto.length; i++) {
             for (int j = 0; j < this.labirinto[i].length; j++) {
                 if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] != 'S' && this.labirinto[i][j] != 'E' && this.labirinto[i][j] != '#'){ 
@@ -145,6 +147,15 @@ public class ResolvedorLabirinto implements Cloneable{
         }
 
         return estaAberto;
+    }
+
+    private void saidaOuEntradaNoCaminho() throws Exception{
+        for (int i = 1; i < this.labirinto.length-1; i++) {
+            for (int j = 1; j < this.labirinto[i].length-1; j++) {
+                if(this.labirinto[i][j] == 'E') throw new Exception("A entrada tem que estar nas bordas do labirinto");
+                if(this.labirinto[i][j] == 'S') throw new Exception("A saida tem que estar nas bordas do labirinto");
+            }
+        }
     }
 
     private void mostrarCaminho() throws Exception{
