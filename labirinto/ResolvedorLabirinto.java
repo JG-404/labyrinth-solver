@@ -54,7 +54,9 @@ public class ResolvedorLabirinto implements Cloneable{
             }
         }
 
-        this.atual = acharEntrada();        
+        this.atual = acharEntrada();
+        
+        if (!acharSaida()) throw new Exception("Saída não econtrada");
 
         this.caminho = new Pilha<>(this.altura * this.largura);
         this.possibilidades = new Pilha<>(this.altura * this.largura);
@@ -101,17 +103,35 @@ public class ResolvedorLabirinto implements Cloneable{
     }
 
     private Coordenada acharEntrada() throws Exception{
+        Coordenada coordenadaEncontrada = null;
 
         for (int i = 0; i < this.labirinto.length; i++) {
             for (int j = 0; j < this.labirinto[i].length; j++) {
-                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1)
-                        && this.labirinto[i][j] == 'E')
-                    return new Coordenada(i, j);
+                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] == 'E'){ 
+                    if (coordenadaEncontrada == null) coordenadaEncontrada = new Coordenada(i, j);
+                    else throw new Exception("Duas entradas encontradas, só pode ter uma");
+                }
             }
         }
 
-        throw new Exception("Entrada não encontrada");
-        
+        if (coordenadaEncontrada == null) throw new Exception("Entrada não encontrada");
+
+        return coordenadaEncontrada;        
+    }
+
+    private boolean acharSaida() throws Exception{
+        boolean encontrou = false;
+
+        for (int i = 0; i < this.labirinto.length; i++) {
+            for (int j = 0; j < this.labirinto[i].length; j++) {
+                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] == 'S'){ 
+                    if (encontrou == false) encontrou = true;
+                    else throw new Exception("Duas saidas encontradas, só pode ter uma");
+                }
+            }
+        }
+
+        return encontrou;
     }
 
     private void mostrarCaminho() throws Exception{
