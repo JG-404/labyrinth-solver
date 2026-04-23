@@ -54,9 +54,9 @@ public class ResolvedorLabirinto implements Cloneable{
             }
         }
 
-        this.atual = acharEntrada();
-        
-        if (!acharSaida()) throw new Exception("Saída não econtrada");
+        this.atual = this.acharEntrada();
+        if (!this.acharSaida()) throw new Exception("Saída não econtrada");
+        if (this.labirintoAberto()) throw new Exception("As paredes do labirinto estão abertas");
 
         this.caminho = new Pilha<>(this.altura * this.largura);
         this.possibilidades = new Pilha<>(this.altura * this.largura);
@@ -92,7 +92,7 @@ public class ResolvedorLabirinto implements Cloneable{
 
         while (this.labirinto[this.atual.getY()][this.atual.getX()] != 'S') {
 
-            andar();
+            this.andar();
 
         }
         System.out.println(this);
@@ -109,7 +109,7 @@ public class ResolvedorLabirinto implements Cloneable{
             for (int j = 0; j < this.labirinto[i].length; j++) {
                 if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] == 'E'){ 
                     if (coordenadaEncontrada == null) coordenadaEncontrada = new Coordenada(i, j);
-                    else throw new Exception("Duas entradas encontradas, só pode ter uma");
+                    else throw new Exception("Mais de uma entrada encontrada, só pode ter uma");
                 }
             }
         }
@@ -126,12 +126,25 @@ public class ResolvedorLabirinto implements Cloneable{
             for (int j = 0; j < this.labirinto[i].length; j++) {
                 if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] == 'S'){ 
                     if (encontrou == false) encontrou = true;
-                    else throw new Exception("Duas saidas encontradas, só pode ter uma");
+                    else throw new Exception("Mais de uma saida encontrada, só pode ter uma");
                 }
             }
         }
 
         return encontrou;
+    }
+
+    private boolean labirintoAberto(){
+        boolean estaAberto = false;
+        for (int i = 0; i < this.labirinto.length; i++) {
+            for (int j = 0; j < this.labirinto[i].length; j++) {
+                if ((i == 0 || i == this.labirinto.length - 1 || j == 0 || j == this.labirinto[i].length - 1) && this.labirinto[i][j] != 'S' && this.labirinto[i][j] != 'E' && this.labirinto[i][j] != '#'){ 
+                    estaAberto = true;
+                }
+            }
+        }
+
+        return estaAberto;
     }
 
     private void mostrarCaminho() throws Exception{
